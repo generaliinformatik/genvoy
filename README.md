@@ -1,5 +1,4 @@
 
-
 # Github Webhook Framework
 <a id="markdown-Github%20Webhook%20Framework" name="Github%20Webhook%20Framework"></a>
 
@@ -43,12 +42,6 @@ Limitation: Currently no events are recorded at the configuration of the organiz
 - [Notes on data protection](#notes-on-data-protection)
 - [License](#license)
 - [Credits](#credits)
-- [Evaluation of different approaches](#evaluation-of-different-approaches)
-    - [Hooks (client-side)](#hooks-client-side)
-    - [Actions (sever-side)](#actions-sever-side)
-    - [Webhooks](#webhooks)
-    - [API](#api)
-    - [Conclusion](#conclusion)
 
 <!-- /TOC -->
 
@@ -74,7 +67,6 @@ Limitation: Currently no events are recorded at the configuration of the organiz
 <a id="markdown-Sequence%20diagram" name="Sequence%20diagram"></a>
 ![sequence diagram](docs/images/sequence.png)
 
-
     graph TD
     A[Github] -->|send event| B(Github event engine)
     B -->|send event json| C{Webhook Framework}
@@ -85,7 +77,6 @@ Limitation: Currently no events are recorded at the configuration of the organiz
     F -->|git clone ...| G[local hdd]
     C -->|event type: ...| H[...]
     H -->|...| I[...]
-
 
 ## Installation
 <a id="markdown-Installation" name="Installation"></a>
@@ -105,7 +96,6 @@ In the repository or organization, the target address must be specified in the f
 <a id="markdown-Set%20up%20dependencies" name="Set%20up%20dependencies"></a>
 
 The dependencies to Python modules can be set up by calling
-
 
     sudo pip install -r ./app/requirements.txt
 
@@ -239,7 +229,6 @@ The advantage of the hierarchical path specification method is that the contents
 ## Deploy
 <a id="markdown-Deploy" name="Deploy"></a>
 
-
 ### Python
 <a id="markdown-Python" name="Python"></a>
 
@@ -247,7 +236,6 @@ To execute the script from the command line, simply call
 
     cd ./app
     python3 main.py
-
 
 ### Apache
 <a id="markdown-Apache" name="Apache"></a>
@@ -276,7 +264,6 @@ To register the webhook select Content type: ``application/json`` and set the UR
 
     http://my.site.com/webhooks
 
-
 ### Docker
 <a id="markdown-Docker" name="Docker"></a>
 
@@ -284,7 +271,6 @@ To deploy in a Docker container you have to expose the port 5000, for example wi
 
     docker build --pull -f ./Dockerfile -t webhooks:latest .
     docker run -p 5000:5000 webhooks:latest  
-
 
 You can also mount volume to setup the ``./hooks/``, ``./backup.git/`` or ``./backup.json/`` directories, and the file ``config.json``:
 
@@ -373,7 +359,6 @@ You should be able to see any log error in your webapp. If 2FA is activated, you
 When running in Apache, the ``stderr`` of the hooks that return non-zero will
 be logged in Apache's error logs. For example:
 
-
     sudo tail -f /var/log/apache2/error.log
 
 Will log errors in your scripts if printed to ``stderr``.
@@ -422,7 +407,6 @@ However, we would like to point out that the publication of sensitive informatio
 
 APLv2, see [LICENSE](LICENSE)
 
-
 ## Credits
 <a id="markdown-Credits" name="Credits"></a>
 
@@ -431,85 +415,3 @@ This project is a reinterpretation and merge of several approaches and uses the 
 - python-github-webhooks <https://github.com/carlos-jenkins/python-github-webhooks>
 
 Thanks.
-
-## Evaluation of different approaches
-<a id="markdown-Evaluation%20of%20different%20approaches" name="Evaluation%20of%20different%20approaches"></a>
-
-
-### Hooks (client-side)
-<a id="markdown-Hooks%20(client-side)" name="Hooks%20(client-side)"></a>
-
-
-#### Advantages
-
-- flexible
-- any language
-- local execution
-- fast realization
-- execution before publication
-
-
-#### Disadvantages
-
-- installation required by each user
-- execution not ensured
-- quality of hooks not uniform 
-- the sending of events depends on the configuration on the client side
-- no events of the organization configuration
-
-
-### Actions (sever-side)
-<a id="markdown-Actions%20(sever-side)" name="Actions%20(sever-side)"></a>
-
-
-#### Advantages
-
-- central approach
-- can be flexibly set up per repository
-
-
-#### Disadvantages
-
-- must be set up for each repository
-- default is binding for all users (can also be a hindrance when external contributors are involved)
-- no events of the organization configuration
-
-
-### Webhooks
-<a id="markdown-Webhooks" name="Webhooks"></a>
-
-
-#### Advantages
-
-- can be set up both per repository and for an organization (central approach)
-- adaptive approach
-- no strong impairment of forks
-
-
-#### Disadvantages
-
-- no events of the organization configuration
-- event only occurs if actions have already been executed on Github
-
-
-### API
-<a id="markdown-API" name="API"></a>
-
-
-#### Advantages
-
-- registration of all occurred and supported events 
-- events can still be retrieved 90 days after they occur
-
-
-#### Disadvantages
-
-- no events of the organization configuration
-- event only occurs if actions have already been executed on Github
-
-
-
-### Conclusion
-<a id="markdown-Conclusion" name="Conclusion"></a>
-
-Finally, it can be argued that a mixed operation of Webhook and API is advantageous if the target server was temporarily unavailable for receiving the events. In this case, it is recommended to compare the received events with the available Github levels on a regular basis. The test must be performed every 90 days at the latest, but should be performed at much shorter notice due to some time-critical reactions to certain events. 
