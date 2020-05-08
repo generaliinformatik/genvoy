@@ -234,6 +234,8 @@ The main purpose of this script is to clone a repository locally when a push eve
 
 In the title or message, content from the passed JSON of the event that occurred, can be specified. These are embedded in brackets hierarchically according to the JSON structure. A `{comment/title}` specification thus determines the key `title` from the JSON in the `comment` structure and embeds the content instead of the placeholder. Placeholders that are not resolved are replaced by 'null'. Further levels can be specified accordingly (example: `{1/2/3/4}`).
 
+The placeholder `{event}` is a special case, because it is not propagated within the playload. This placeholder is permanently replaced with the determined event type and can be used in all elements.
+
 The advantage of the hierarchical path specification method is that the contents of the JSON can be used dynamically without the need to modify a script and the use of variable assignments. For other messages and content, all you need to do is determine the structure and content of the JSON and use the path to the desired content as a placeholder `{...}`. Please see payload structure as mentioned above.
 
 ## Deploy
