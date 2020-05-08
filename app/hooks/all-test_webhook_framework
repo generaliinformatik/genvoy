@@ -1,0 +1,102 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2020 Generali AG, Rene Fuehrer <rene.fuehrer@generali.com>
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+import os
+import logging
+#import time
+import re
+
+import sys
+#from sys import stderr, hexversion
+from sys import stderr
+
+import json
+#from json import loads, dumps
+from json import loads
+
+#import git
+#import pymsteams
+
+class DictQuery(dict):
+    """
+    Dictionary class to get JSON hierarchical data structures
+    """
+    def get(self, path, default=None):
+        keys = path.split("/")
+        val = None
+
+        for key in keys:
+            if val:
+                if isinstance(val, list):
+                    val = [v.get(key, default) if v else None for v in val]
+                else:
+                    val = val.get(key, default)
+            else:
+                val = dict.get(self, key, default)
+
+            if not val:
+                break
+
+        return val
+
+def replace_all_placeholders(this_text, this_dictionary, this_default):
+    """
+    Function to replace placeholders with hierarchical data structures
+    """
+    placeholders = ""
+    placeholders = re.findall(r"{(.*?)}", this_text)
+    for placeholder_key in placeholders:
+        placeholder_value = DictQuery(this_dictionary).get(placeholder_key, this_default)
+        this_text = this_text.replace("{"+placeholder_key+"}", str(placeholder_value))
+        logging.debug("replace placeholder: %s => %s", placeholder_key, placeholder_value)
+    return this_text
+
+
+logging.basicConfig(stream=stderr, level=logging.INFO)
+
+json_file = sys.argv[1]
+event_type = sys.argv[2]
+
+with open(sys.argv[1], 'r') as jsf:
+    payload = json.loads(jsf.read())
+
+repository_name = replace_all_placeholders("{repository/name}", payload, "")
+config_file = os.path.dirname(os.path.abspath(__file__)) + '/all-'+repository_name+'.json'
+
+logging.debug("all-<repo>: config file '%s'", config_file)
+
+# Load config
+with open(config_file, 'r') as cfg:
+    config = loads(cfg.read())
+
+WEBHOOK = replace_all_placeholders("{webhook}", config, "")
+logging.debug("%s: config read - 'webhook': %s", event_type, WEBHOOK)
+COLOR = replace_all_placeholders("{color}", config, "")
+logging.debug("%s: config read - 'color': %s", event_type, COLOR)
+TITLE = replace_all_placeholders("{title}", config, "")
+logging.debug("%s: config read - 'title': %s", event_type, TITLE)
+MESSAGE = replace_all_placeholders("{message}", config, "")
+logging.debug("%s: config read - 'message': %s", event_type, MESSAGE)
+
+TITLE = replace_all_placeholders(TITLE, payload, "")
+MESSAGE = replace_all_placeholders(MESSAGE, payload, "")
+
+if MESSAGE != "":
+    logging.info("all-<repo>: sending message to console: %s", MESSAGE)
+else:
+    logging.error("%s: message was empty", event_type)
