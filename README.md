@@ -1,7 +1,7 @@
 
 
-# Github Webhook Framework (Notifications to Microsoft Teams)
-<a id="markdown-Github%20Webhook%20Framework%20(Notifications%20to%20Microsoft%20Teams)" name="Github%20Webhook%20Framework%20(Notifications%20to%20Microsoft%20Teams)"></a>
+# Github Webhook Framework
+<a id="markdown-Github%20Webhook%20Framework" name="Github%20Webhook%20Framework"></a>
 
 An extensible and flexible Python code based Github webhook handling framework. This repository provides examples of how to send notifications to Microsoft Teams when specific events occur in a repository or an organization. 
 
