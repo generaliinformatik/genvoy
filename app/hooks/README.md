@@ -1,1 +1,1 @@
-Hook directory
+Hooks directory
