@@ -39,6 +39,8 @@ from os.path import isfile, abspath, normpath, dirname, join, basename
 import requests
 from flask import Flask, request, abort
 
+# initialize dynamic debug level
+debug_level="INFO"
 logging.basicConfig(stream=stderr, level=logging.INFO)
 
 app = Flask(__name__)
@@ -49,6 +51,8 @@ def index():
     """
     Main WSGI application entry.
     """
+    global debug_level
+
     app_path = os.path.dirname(os.path.abspath(__file__))
     path = normpath(abspath(dirname(__file__)))
 
@@ -56,15 +60,35 @@ def index():
         config = loads(cfg.read())
         cfg.close()
 
+    debug_level_old = debug_level
+    debug_level = str(config.get('debug_level', 'INFO'))
+    if debug_level != debug_level_old:
+        if debug_level == "DEBUG":
+            logging.getLogger().setLevel(logging.DEBUG)
+        elif debug_level == "INFO":
+            logging.getLogger().setLevel(logging.INFO)
+        elif debug_level == "WARNING":
+            logging.getLogger().setLevel(logging.WARNING)
+        elif debug_level == "ERROR":
+            logging.getLogger().setLevel(logging.ERROR)
+        elif debug_level == "CRITICAL":
+            logging.getLogger().setLevel(logging.CRITICAL)
+        else:
+            logging.getLogger().setLevel(logging.INFO)
+        logging.info("debug level set dynamically to: %s", debug_level)
+
     # Only POST is implemented
     if request.method != 'POST':
         abort(501)
 
     hooks = config.get('hooks_path', join(path, 'hooks'))
-    logging.debug("webhook: hooks path: %s", hooks)
-    # Allow Github IPs only
-    logging.debug("webhook: check valid IPs")
+    if os.path.isdir(config.get('hooks_path', "")):
+        logging.debug("hooks path set to: %s", hooks)
+    else:
+        logging.warning("hooks path not valid: $s", hooks)
 
+    # Allow Github IPs only
+    logging.debug("checking valid IPs...")
     # get ip address of requester
     src_ip = ip_address(
         u'{}'.format(request.access_route[0])  # Fix stupid ipaddress issue
@@ -78,11 +102,12 @@ def index():
                 break
         else:
             # pylint: disable=logging-format-interpolation
-            logging.error('IP {} not allowed'.format(src_ip))
+            logging.error('[403] IP {} not allowed'.format(src_ip))
             abort(403)
 
+    logging.debug("checking valid IPs...done.")
     # Enforce secret
-    logging.debug("webhook: check secret")
+    logging.debug("checking webhook secret...")
     secret = config.get('enforce_secret', '')
     if secret:
         # change type of secret
@@ -90,12 +115,12 @@ def index():
         # Only SHA1 is supported
         header_signature = request.headers.get('X-Hub-Signature')
         if header_signature is None:
-            logging.error("webhook: secret check failed, header mandantory")
+            logging.error("403: secret check failed: header mandantory")
             abort(403)
 
         sha_name, signature = header_signature.split('=')
         if sha_name != 'sha1':
-            logging.error("webhook: secret check failed, sha1 mandantory")
+            logging.error("501: secret check failed: sha1 mandantory")
             abort(501)
 
         # HMAC requires the key to be bytes, but data is string
@@ -104,19 +129,20 @@ def index():
         # Python prior to 2.7.7 does not have hmac.compare_digest
         if hexversion >= 0x020707F0:
             if not hmac.compare_digest(str(mac.hexdigest()), str(signature)):
-                logging.warning("webhook: secret check failed, ip=%s", src_ip)
+                logging.warning("[403] secret check failed: hex version wrong")
                 abort(403)
         else:
             # What compare_digest provides is protection against timing
             # attacks; we can live without this protection for a web-based
             # application
             if str(mac.hexdigest()) != str(signature):
-                logging.warning("webhook: secret check failed, ip=%s", src_ip)
+                logging.warning("[403] secret check failed (ip=%s)", src_ip)
                 abort(403)
+    logging.debug("checking webhook secret...done.")
 
     # Implement ping
     event = request.headers.get('X-GitHub-Event', 'ping')
-    logging.debug("webhook: event type = %s", event)
+    logging.debug("event type detected: %s", event)
     if event == 'ping':
         return dumps({'msg': 'pong'})
 
@@ -124,29 +150,29 @@ def index():
     try:
         payload = request.get_json()
     except Exception:
-        logging.warning('Request parsing failed')
+        logging.warning('[400] request parsing failed')
         abort(400)
 
     # Determining the branch is tricky, as it only appears for certain event
     # types an at different levels
-    logging.debug("webhook: check branch")
+    logging.debug("checking branch...")
     branch = None
     try:
         # backup evenry json
         backup_path = config.get('backup_path', "")
-        logging.debug("webhook: backup path = %s", backup_path)
+        logging.debug("backup path set: %s", backup_path)
         if os.path.exists(backup_path):
             # pylint: disable=line-too-long
             backup_file = config.get('backup_path', path)+'/'+ \
                 time.strftime("%Y%m%d-%H%M%S")+'-'+event+'.json'
 
-            logging.debug("webhook: backup file = %s", backup_file)
+            logging.debug("backup file set: %s", backup_file)
             with open(backup_file, 'w') as this_payloadexport:
                 json.dump(payload, this_payloadexport)
                 this_payloadexport.close()
 
         else:
-            logging.info("webhook: backup path not given or invalid, no backup created.")
+            logging.info("backup not created; backup path not given or invalid")
 
         # Case 1: a ref_type indicates the type of ref.
         # This true for create and delete events.
@@ -168,7 +194,9 @@ def index():
     except KeyError:
         # If the payload structure isn't what we expect, we'll live without
         # the branch name
+        logging.debug("payload structure not as expected")
         pass
+    logging.debug("checking branch...done.")
 
     # All current events have a repository, but some legacy events do not,
     # so let's be safe
@@ -185,7 +213,7 @@ def index():
     # Skip push-delete
     if event == 'push' and payload['deleted']:
         # pylint: disable=logging-format-interpolation
-        logging.info('Skipping push-delete event for {}'.format(dumps(meta)))
+        logging.info('skipping push-delete event for {}'.format(dumps(meta)))
         return dumps({'status': 'skipped'})
 
     # Possible hooks
@@ -201,9 +229,11 @@ def index():
     scripts.append(join(hooks, 'all'))
 
     # Check permissions
+    logging.debug("checking executable scripts...")
     scripts = [s for s in scripts if isfile(s) and access(s, X_OK)]
     if not scripts:
         return dumps({'status': 'nop'})
+    logging.debug("checking executable scripts...done.")
 
     # Save payload to temporal file
     osfd, tmpfile = mkstemp()
@@ -216,7 +246,7 @@ def index():
     for this_script in scripts:
 
         this_script = app_path+"/"+this_script
-        logging.info("try to execute hook : %s", this_script)
+        logging.info("try to execute hook: %s", this_script)
 
         proc = Popen(
             [this_script, tmpfile, event],

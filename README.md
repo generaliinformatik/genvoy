@@ -121,7 +121,8 @@ You can configure what the application does by copying the sample config file
         "enforce_secret": "",
         "return_scripts_info": true,
         "hooks_path": "hooks",
-        "backup_path": "backup"
+        "backup_path": "backup",
+        "debug_level": "INFO"
     }
 
 | Key | Value | Default |
@@ -132,6 +133,9 @@ You can configure what the application does by copying the sample config file
 | return_scripts_info | Return a JSON with the ``stdout``, ``stderr`` and exit code for each executed hook using the hook name as key. If this option is set you will be able to see the result of your hooks from within your GitHub hooks configuration page (see "Recent Deliveries"). |``true`` |
 | hooks_path | Configures a path to import the hooks. If not set, it'll import the hooks from the default location. | ``hooks``|
 | backup_path | Configures a path to backup received JSON data as file. If not set or path not valid, no backup file is created. | ``''`` (no backup)|
+| debug_level | Defines the debug level. Valid option sare `DEBUG`, `INFO`, `WARNING`, `CRITICAL`. Default is `INFO`. | `INFO` |
+
+The configuration file is read in anew with every HTTP request before commands are executed. This allows the settings to be adjusted dynamically.
 
 ### Adding hooks
 <a id="markdown-Adding%20hooks" name="Adding%20hooks"></a>

@@ -105,5 +105,8 @@ if color != "":
     myTeamsMessage.color(color)
 if title != "":
     myTeamsMessage.title(title)
+
+# escape underscores to be displayed correctly
+message=message.replace('_', '\_')
 myTeamsMessage.text(message)
 myTeamsMessage.send()

@@ -1,10 +1,16 @@
 #!/bin/bash
 
+
+SCRIPTDIR="$(cd "$(dirname "$0")" && pwd)"
+
 DOCKER_NAME="webhooks"
 DOCKER_TAG="latest"
 
+DPORT=5000
+LPORT=55001
+
 DDIR_BASE="/opt/repo/app"
-LDIR_BASE="/Users/rnb/Desktop/webhooks"
+LDIR_BASE="$SCRIPTDIR/test/webhooks"
 
 DDIR_BACKUP="$DDIR_BASE/backup.jsons"
 LDIR_BACKUP="$LDIR_BASE/backup.jsons"
@@ -31,7 +37,9 @@ echo "##### Hooks     : $LDIR_HOOKS"
 echo "#####"
 echo "##### Starting Docker Container $DOCKER_NAME:$DOCKER_TAG as service..."
 echo "#####"
+echo "##### Container is reachable via port $LPORT"
+echo "#####"
 echo "###################################################"
 
 #docker run -d -p 5000:5000 -u 112233 -v "$LDIR_BACKUP":"$DDIR_BACKUP" -v "$LDIR_CLONE":"$DDIR_CLONE" -v "$LDIR_HOOKS":"$DDIR_HOOKS" $DOCKER_NAME:$DOCKER_TAG
-docker run -d -p 5000:5000 -v "$LDIR_BACKUP":"$DDIR_BACKUP" -v "$LDIR_CLONE":"$DDIR_CLONE" -v "$LDIR_HOOKS":"$DDIR_HOOKS" $DOCKER_NAME:$DOCKER_TAG
+docker run -d -p $LPORT:$DPORT -v "$LDIR_BACKUP":"$DDIR_BACKUP" -v "$LDIR_CLONE":"$DDIR_CLONE" -v "$LDIR_HOOKS":"$DDIR_HOOKS" $DOCKER_NAME:$DOCKER_TAG
