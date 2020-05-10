@@ -229,11 +229,11 @@ def index():
     scripts.append(join(hooks, 'all'))
 
     # Check permissions
-    logging.debug("checking executable scripts...")
+    logging.debug("checking executable hook scripts...")
     scripts = [s for s in scripts if isfile(s) and access(s, X_OK)]
     if not scripts:
         return dumps({'status': 'nop'})
-    logging.debug("checking executable scripts...done.")
+    logging.debug("checking executable hook scripts...done.")
 
     # Save payload to temporal file
     osfd, tmpfile = mkstemp()
@@ -242,11 +242,12 @@ def index():
         this_payloadfile.close()
 
     # search for sub hook scripts (e.g. all => all1, all2, all-test, all-function1, ...)
+    logging.debug("checking executable child hook scripts...")
     for subhook_script in scripts:
-        subhook_script = app_path+"/"+subhook_script
+        # remove hooks dir and slashes
         subhook_script = subhook_script.replace(hooks, '')
         subhook_script = subhook_script.replace('/', '')
-        files = [f for f in os.listdir(app_path+"/"+hooks) if re.match(rf'{subhook_script}.*', f)]
+        files = [f for f in os.listdir(app_path+"/"+hooks+"/") if re.match(rf'{subhook_script}.*', f)]
         for sub_script in files:
             # check if found files are executable (beware of x flag to non exectuable files!)
             sub_script_filename = app_path+"/"+hooks+"/"+sub_script
@@ -254,6 +255,8 @@ def index():
                 if join(hooks, sub_script) not in scripts:
                     # just add new files to list
                     scripts.append(join(hooks, sub_script))
+                    logging.debug("adding child hook '%s'", sub_script)
+    logging.debug("checking executable child hook scripts...done.")
 
     # Run scripts
     ran = {}
