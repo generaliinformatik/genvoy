@@ -139,7 +139,19 @@ This application will execute scripts in the hooks directory using the following
     hooks/all-{repository name}
     hooks/all
 
-**Note:** All hooks that are interpreted as matching are called one after the other, so different actions can be performed on an single event.
+In addition, it is possible to define with so-called child hooks. These only have to correspond to the file names of the parent hook in the prefix and can be extended by further functions. These act as own scripts, but are called with the event of the parent hook. Sorting by the file name determines the execution sequence. All files that have the execution flag are included as child hooks - so please make sure that the correct flag is set in the file properties.
+
+The following exemplary possibilities (extract) exist to extend the parent hooks with additional child hooks:
+
+    hooks/{event}-{repository name}-{branch}+function1
+    hooks/{event}-{repository name}function1
+    hooks/{event}_function1
+    hooks/all-{repository name}-{branch}function1
+    hooks/all-{repository name}.function1
+    hooks/all-1-function1
+    hooks/all-2-function2
+
+**Note:** All hooks that are interpreted as matching are called one after the other.
 
 The application will pass to the hooks the path to a JSON file holding the
 payload for the request as first argument. The event type will be passed
