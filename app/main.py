@@ -22,6 +22,7 @@ import time
 from sys import stderr, hexversion
 import logging
 from ipaddress import ip_address, ip_network
+import re
 
 import hmac
 #from hashlib import sha1
@@ -40,7 +41,6 @@ import requests
 from flask import Flask, request, abort
 
 # initialize dynamic debug level
-debug_level="INFO"
 logging.basicConfig(stream=stderr, level=logging.INFO)
 
 app = Flask(__name__)
@@ -51,8 +51,6 @@ def index():
     """
     Main WSGI application entry.
     """
-    global debug_level
-
     app_path = os.path.dirname(os.path.abspath(__file__))
     path = normpath(abspath(dirname(__file__)))
 
@@ -60,7 +58,8 @@ def index():
         config = loads(cfg.read())
         cfg.close()
 
-    debug_level_old = debug_level
+    if not 'debug_level_old' in locals():
+        debug_level_old = "INFO"
     debug_level = str(config.get('debug_level', 'INFO'))
     if debug_level != debug_level_old:
         if debug_level == "DEBUG":
@@ -76,6 +75,8 @@ def index():
         else:
             logging.getLogger().setLevel(logging.INFO)
         logging.info("debug level set dynamically to: %s", debug_level)
+        debug_level_old = debug_level
+
 
     # Only POST is implemented
     if request.method != 'POST':
@@ -85,7 +86,7 @@ def index():
     if os.path.isdir(config.get('hooks_path', "")):
         logging.debug("hooks path set to: %s", hooks)
     else:
-        logging.warning("hooks path not valid: $s", hooks)
+        logging.warning("hooks path not valid: %s", hooks)
 
     # Allow Github IPs only
     logging.debug("checking valid IPs...")
@@ -195,7 +196,7 @@ def index():
         # If the payload structure isn't what we expect, we'll live without
         # the branch name
         logging.debug("payload structure not as expected")
-        pass
+
     logging.debug("checking branch...done.")
 
     # All current events have a repository, but some legacy events do not,
@@ -224,16 +225,15 @@ def index():
     if name:
         scripts.append(join(hooks, '{event}-{name}'.format(**meta)))
         scripts.append(join(hooks, 'all-{name}'.format(**meta)))
-        #print("Script added: %s" % (join(hooks, '{event}-{name}'.format(**meta))))
     scripts.append(join(hooks, '{event}'.format(**meta)))
     scripts.append(join(hooks, 'all'))
 
     # Check permissions
-    logging.debug("checking executable scripts...")
+    logging.debug("checking executable hook scripts...")
     scripts = [s for s in scripts if isfile(s) and access(s, X_OK)]
     if not scripts:
         return dumps({'status': 'nop'})
-    logging.debug("checking executable scripts...done.")
+    logging.debug("checking executable hook scripts...done.")
 
     # Save payload to temporal file
     osfd, tmpfile = mkstemp()
@@ -241,10 +241,26 @@ def index():
         this_payloadfile.write(dumps(payload))
         this_payloadfile.close()
 
+    # search for sub hook scripts (e.g. all => all1, all2, all-test, all-function1, ...)
+    logging.debug("checking executable child hook scripts...")
+    for subhook_script in scripts:
+        # remove hooks dir and slashes
+        subhook_script = subhook_script.replace(hooks, '')
+        subhook_script = subhook_script.replace('/', '')
+        files = [f for f in os.listdir(app_path+"/"+hooks+"/") if re.match(rf'{subhook_script}.*', f)]
+        for sub_script in files:
+            # check if found files are executable (beware of x flag to non exectuable files!)
+            sub_script_filename = app_path+"/"+hooks+"/"+sub_script
+            if isfile(sub_script_filename) and access(sub_script_filename, X_OK):
+                if join(hooks, sub_script) not in scripts:
+                    # just add new files to list
+                    scripts.append(join(hooks, sub_script))
+                    logging.debug("adding child hook '%s'", sub_script)
+    logging.debug("checking executable child hook scripts...done.")
+
     # Run scripts
     ran = {}
     for this_script in scripts:
-
         this_script = app_path+"/"+this_script
         logging.info("try to execute hook: %s", this_script)
 
@@ -263,7 +279,7 @@ def index():
         # Log errors if a hook failed
         if proc.returncode != 0:
             # pylint: disable=logging-too-many-args
-            logging.error('{} : {} \n{}', format(
+            logging.error('{} : {} \n{}'.format(
                 this_script, proc.returncode, stderr
             ))
 
