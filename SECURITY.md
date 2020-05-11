@@ -1,5 +1,5 @@
 # Generali Open Source Team Security Issues
-Generali Open Source Team (OST) <opensource.de@generali.com@isara.com>
+Generali Open Source Team (OST) <opensource.de@generali.com>
 v1.0 2020-05: Copyright (C) 2020 Generali Deutschland AG, All Rights Reserved.
 
 ## Reporting Security Issues
