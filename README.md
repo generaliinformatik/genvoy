@@ -31,18 +31,12 @@ Limitation: Currently no events are recorded at the configuration of the organiz
     - [Set up dependencies](#set-up-dependencies)
     - [Configuration](#configuration)
     - [Adding hooks](#adding-hooks)
-        - [Hook call/execution](#hook-callexecution)
     - [Hook configuration](#hook-configuration)
-        - [Sample: Notification](#sample-notification)
-        - [Sample: Git Clone at Push](#sample-git-clone-at-push)
-        - [Placeholder handling](#placeholder-handling)
 - [Deploy](#deploy)
     - [Python](#python)
     - [Apache](#apache)
     - [Docker](#docker)
-        - [Use under Openshift](#use-under-openshift)
     - [Docker @ Synology](#docker--synology)
-        - [Adaptation of the (internal) port](#adaptation-of-the-internal-port)
 - [Test your deployment](#test-your-deployment)
 - [Debug](#debug)
 - [Notes on infrastructure](#notes-on-infrastructure)
@@ -195,7 +189,6 @@ The payload structure depends on the event type. Please review:
     https://developer.github.com/v3/activity/events/types/
 
 #### Hook call/execution
-<a id="markdown-Hook%20call%2Fexecution" name="Hook%20call%2Fexecution"></a>
 
 The configuration of the hooks depends on the hooks used. The sample hooks contained in the repository are used to send notifications about the github events to Microsoft Teams and to clone repositories locally. 
 
@@ -216,7 +209,6 @@ are called. Some sample scripts are given to demonstrate the procedure.
 <a id="markdown-Hook%20configuration" name="Hook%20configuration"></a>
 
 #### Sample: Notification
-<a id="markdown-Sample%3A%20Notification" name="Sample%3A%20Notification"></a>
 
 The `all` script interprets the parameters passed and reads the configuration file corresponding to the name of the event that has occurred. If a corresponding configuration file exists for the event, it is read and used to send the message. In this example we assume that Microsft Teams is used.
 
@@ -231,7 +223,6 @@ Example: If the event `push` occurs, the script `hooks/all` tries to read the co
 | event/message | The message content for this kind of event. Any placeholder will be replaced (see placeholder handling). | - | - | '' |
 
 #### Sample: Git Clone at Push
-<a id="markdown-Sample%3A%20Git%20Clone%20at%20Push" name="Sample%3A%20Git%20Clone%20at%20Push"></a>
 
 The second example illustrates the event and hook `push`. This hook is additionally executed after the `all` hook for all `push` events. 
 
@@ -243,11 +234,17 @@ The main purpose of this script is to clone a repository locally when a push eve
 | clone_dir |  The directory in which the clone is created. In the specified directory, a subdirectory with timestamp is created in which the clone is created. This allows a repository to be saved in any state without overwriting the previous clones. | - |  - | `backup.git` |
 
 #### Placeholder handling
-<a id="markdown-Placeholder%20handling" name="Placeholder%20handling"></a>
 
 In the title or message, content from the passed JSON of the event that occurred, can be specified. These are embedded in brackets hierarchically according to the JSON structure. A `{comment/title}` specification thus determines the key `title` from the JSON in the `comment` structure and embeds the content instead of the placeholder. Placeholders that are not resolved are replaced by 'null'. Further levels can be specified accordingly (example: `{1/2/3/4}`).
 
-The placeholder `{event}` is a special case, because it is not propagated within the playload. This placeholder is permanently replaced with the determined event type and can be used in all elements.
+The following placeholders are special case, because it is not propagated within the playload itself.
+
+| Placeholder | Content |
+| --- | --- |
+| `{event}`| The placeholder `event` is permanently replaced with the determined event type and can be used in all elements. |
+| `{payload_text}` | The placeholder `payload_text` is replaced with a list of valid placeholders and the corresponding content of the payload. The output is formatted as text. |
+| `{payload_table_html}`| The placeholder `payload_table_html` is replaced with a list of valid placeholders and the corresponding content of the payload. The output is formatted as HTML table. |
+| `{payload_table_md}` | The placeholder `payload_table_md` is replaced with a list of valid placeholders and the corresponding content of the payload. The output is formatted as Markdown table. |
 
 The advantage of the hierarchical path specification method is that the contents of the JSON can be used dynamically without the need to modify a script and the use of variable assignments. For other messages and content, all you need to do is determine the structure and content of the JSON and use the path to the desired content as a placeholder `{...}`. Please see payload structure as mentioned above.
 
@@ -309,7 +306,6 @@ You can also mount volume to setup the ``./hooks/``, ``./backup.git/`` or ``./ba
 Alternatively, the script file `./deploy_docker.sh` can be called, in which the above mentioned commands are called automatically. Variables in the script file can be used to customize the execution. 
 
 #### Use under Openshift 
-<a id="markdown-Use%20under%20Openshift%20" name="Use%20under%20Openshift%20"></a>
 
 The basis Dockerfile can be used under Docker and Openshift. For the use under Openshift the script `./deploy_openshift.sh` can be used.
 
@@ -349,7 +345,6 @@ Finally, we set up the port mapping under `Port Settings`. This is necessary bec
     At this point, there are several possibilities, depending on the respective network configuration. In this case, we assume that the webhook sends via github on your public IP to port 55000. This port is shared in the router and forwarded to the IP from the Synology Product. Here, the packets on port 55500 are received and forwarded to the container.
 
 #### Adaptation of the (internal) port
-<a id="markdown-Adaptation%20of%20the%20(internal)%20port" name="Adaptation%20of%20the%20(internal)%20port"></a>
 
 The port to be used internally is currently set to `5000`. It may sometimes be necessary to adjust the port within the container or the user may have his own preferences. However, in most cases it should be sufficient to implement a change of the port propagated to the outside world via the command `docker run -p <port>:<Port> ...`.
 
