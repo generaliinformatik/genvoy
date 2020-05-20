@@ -24,7 +24,7 @@ import json
 from json import loads
 import pymsteams
 
-from hook_functions import replace_all_placeholders, flatten_json_text, flatten_json_table_html, flatten_json_table_md
+from hook_functions import replace_all_placeholders, get_reference, flatten_json_text, flatten_json_table_html, flatten_json_table_md
 
 
 debug_level = "INFO"
@@ -57,13 +57,6 @@ if debug_level != debug_level_old:
 
 logging.debug("%s: config file '%s'", event_type, config_file)
 
-webhook = replace_all_placeholders("{%s/webhook}" % (event_type), config, event_type)
-logging.debug("%s: config read - 'webhook' (by event): %s", event_type, webhook)
-if webhook == "":
-    # read global webhhok if no event specific webhook is given
-    webhook = replace_all_placeholders("{webhook}", config, event_type)
-
-logging.debug("%s: config read - 'webhook': %s", event_type, webhook)
 color = replace_all_placeholders("{%s/color}" % (event_type), config, event_type)
 logging.debug("%s: config read - 'color': %s", event_type, color)
 title = replace_all_placeholders("{%s/title}" % (event_type), config, event_type)
@@ -82,14 +75,15 @@ message = message.replace("{payload_table_html}", flatten_json_table_html(payloa
 message = message.replace("{payload_table_md}", flatten_json_table_md(payload))
 
 logging.info("%s: sending message to ms teams", event_type)
-myTeamsMessage = pymsteams.connectorcard(webhook)
-if color != "":
-    myTeamsMessage.color(color)
-if title != "":
-    myTeamsMessage.title(title)
 
 # escape underscores to be displayed correctly
 message = message.replace('_', '\_')
-myTeamsMessage.text(message)
 
-myTeamsMessage.send()
+for send_reference in get_reference(config, "webhook", event_type):
+    myTeamsMessage = pymsteams.connectorcard(send_reference)
+    if color != "":
+        myTeamsMessage.color(color)
+    if title != "":
+        myTeamsMessage.title(title)
+    myTeamsMessage.text(message)
+    myTeamsMessage.send()
