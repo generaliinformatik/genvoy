@@ -217,7 +217,7 @@ Example: If the event `push` occurs, the script `hooks/all` tries to read the co
 | Key | Value | Placeholder | Optional | Default |
 | --- | --- | :-: | :-: | -- |
 | webhook | The URL of the Microsoft Team Webhook. This URL must be specified for the respective channel with the Webhook Connector previously set up. This option will be overwritten, if `event/webhook` is set within an event configuration. | - | - | '' |
-| event/webhook | The URL of the Microsoft Team Webhook. This URL must be specified for the respective channel with the Webhook Connector previously set up. | - | - | '' |
+| event/webhook | The URL of the Microsoft Team Webhook. This URL must be specified for the respective channel with the Webhook Connector previously set up. Internal references can be introduced with "@" and external references with "!" (see section "References").| - | - | '' |
 | event/color | Color code to be used for message,. This color is used as colored seperator line  between webhook name and message title/content.| &#10003; |  &#10003; | '' |
 | event/title | The message title for this kind of event. Any placeholder will be replaced (see placeholder handling). |  &#10003;|  &#10003; | '' |
 | event/message | The message content for this kind of event. Any placeholder will be replaced (see placeholder handling). | - | - | '' |
@@ -247,6 +247,19 @@ The following placeholders are special case, because it is not propagated within
 | `{payload_table_md}` | The placeholder `payload_table_md` is replaced with a list of valid placeholders and the corresponding content of the payload. The output is formatted as Markdown table. |
 
 The advantage of the hierarchical path specification method is that the contents of the JSON can be used dynamically without the need to modify a script and the use of variable assignments. For other messages and content, all you need to do is determine the structure and content of the JSON and use the path to the desired content as a placeholder `{...}`. Please see payload structure as mentioned above.
+
+#### References
+
+References are used to define recurring specifications once and to refer to them in the individual sections of the configuration. The following references are possible:
+
+| Reference type | Example | Description |
+| --- | --- | --- |
+| w/o | | No specification within an event results in the standard definition being used. If the script uses webhooks, {webhook/default} will be used. |
+| directly | dev | The content "dev" is used as reference as specified. Dev can be a webhook, an email or something else depending on the event or executed script. |
+| internal | @ref | This specification allows the reference to an internal definition. If the reference in {push/webhook} is specified with "@dev", {webhook/dev} is searched for the actual specification. If this is not found, the reference is no longer used.|
+| external | !file.ext | This specification allows the use of an external file specification. The content of the file is used as a reference. If the file is not found, no reference is used. |
+
+**Note on external references**: The directory in which specified files are searched is based on the ```hooks``` directory. Files with a special suffix can be excluded from being uploaded by Git by using a ```.gitignore```. It is recommended to use a uniform suffix for such files.
 
 ## Deploy
 <a id="markdown-Deploy" name="Deploy"></a>

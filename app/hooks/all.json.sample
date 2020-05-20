@@ -1,0 +1,267 @@
+{
+    "debug_level": "DEBUG",
+    "webhook": {
+        "default": "https://...",
+        "dev": "https://...",
+        "prod": "none"
+    },
+    "rss": {
+        "default": "https://...",
+        "dev": "https://...",
+        "prod": "https://..."
+    },
+    "email": {
+        "default": "none@...",
+        "dev": "dev@...",
+        "prod": "prod@..."
+    },
+    "create": {
+        "active": true,
+        "webhook": [ "@dev", "@prod"],
+        "title" : "Event: {event}",
+        "message" : "Object <b>{ref}</b> of type <b>{ref_type}</b> was <b>created</b> in repository <a href='{repository/html_url}'><b>{repository/name}</b></a>."
+    },
+    "follow": {
+        "active": true,
+        "title" : "Event: {event}",
+        "message" : "Event <b>{action}</b> not configured yet."
+    },
+    "fork": {
+        "active": true,
+        "title" : "Event: {event}",
+        "message" : "Event <b>fork</b> was initialized.<br><br>Remote fork of our repository <b><a href='{repository/html_url}'>{repository/name}</a></b> was <b>{action}</b> by <b><a href='{forkee/owner/html_url}''>{forkee/owner/login}</a></b>."
+    },
+    "issue_comment": {
+        "webhook": [ "@dev", "@prod", "!all-webhook.secret" ],
+        "rss": [ "@dev", "@prod" ],
+        "active": true,
+        "title" : "Event: {event}",
+        "message" : "A <b><a href='{comment/html_url}'>comment</a></b> in issue <b><a href='{issue/html_url}'>{issue/title}</a></b> was <b>{action}</b> by user <b><a href='{sender/html_url}'>{sender/login}</a></b>. Please review the issue if necessary!<br><br><i>{comment/body}</i>"
+    },
+    "issues": {
+        "active": true,
+        "color" : "FF0000",
+        "title" : "Event: {event}",
+        "message" : "Issue <b>#<a href='{issue/html_url}'>{issue/number}</a></b> with title <b><a href='{issue/html_url}'>{issue/title}</a></b> was <b>{action}</b> by user <b><a href='{sender/html_url}'>{sender/login}</a></b> in repository <b><a href='{repository/html_url}'>{repository/name}</a></b>. Please review this issue if necessary!<br><br>{payload_table_html}<br>"
+    },
+    "label": {
+        "active": true,
+        "title" : "Event: {event}",
+        "message" : "The label <b><a href='{label/url}'>{label/name}</a></b> was <b>{action}</b> in repository <b><a href='{repository/html_url}'>{repository/name}</a></b>"
+    },
+    "member": {
+        "active": true,
+        "title" : "Event: {event}",
+        "message" : "Event <b>member</b> occured:<br><br>Member <b><a href='{member/html_url}'>{member/name}</a></b> was {action} to repositopry <a href='{repository/html_url}'>{repository/name}</a>."
+    },
+    "membership": {
+        "active": true,
+        "title" : "Event: {event}",
+        "message" : "Event <b>membership</b> occured:<br><br> Team <b><a href='{team/html_url}'>{team/name}</a></b> affected. User <b><a href='{member/html_url}'>{member/login}</a></b> was <b>{action}</b>."
+    },
+    "push": {
+        "active": true,
+        "title" : "Event: {event}",
+        "message" : "Repository <b><a href='{repository/html_url}'>{repository/full_name}</a></b> was updated by <b><a href='https://github.com/{head_commit/author/username}'>{head_commit/author/name}</a></b>. Please find the details <b><a href='{compare}'>here</a></b>. Commit message:<br><br><b>{head_commit/message}</b>"    
+    },
+    "repository": {
+        "active": true,
+        "title" : "Event: {event}",
+        "message" : "Event <b>repository</b> occured:<br><br>Repository <b><a href='{repository/html_url}'>{repository/name}</a></b> was <b>{action}</b>."
+    },
+    "star": {
+        "active": true,
+        "title" : "Event: {event}",
+        "message" : "Event <b>star</b> was initialized.<br><br>A star of repository <b><a href='{repository/html_url}'>{repository/name}</a></b> was <b>{action}</b> by <b><a href='{sender/html_url}''>{sender/login}</a></b>."
+    },
+    "team": {
+        "active": true,
+        "title" : "Event: {event}",
+        "message" : "Event <b>team</b> occured:<br><br>Team <b><a href='{team/html_url}'>{team/name}</a></b> was <b>{action}</b>."
+    },
+    "watch": {
+        "active": true,
+        "title" : "Event: {event}",
+        "message" : "Event <b>watch</b> was initialized.<br><br>A watch of repository <b><a href='{repository/html_url}'>{repository/name}</a></b> was <b>{action}</b> by <b><a href='{sender/html_url}''>{sender/login}</a></b>."
+    },
+    "check_run": {
+        "active": true,
+        "title" : "Event: {event}",
+        "message" : "Event <b>{event}</b> was detected. This kind of event is not monitored yet. Please check the payload and format an appropriate status message in the configuration for the hook 'all'!"
+    },
+    "check_suite": {
+        "active": true,
+        "title" : "Event: {event}",
+        "message" : "Event <b>{event}</b> was detected. This kind of event is not monitored yet. Please check the payload and format an appropriate status message in the configuration for the hook 'all'!"
+    },
+    "content_reference": {
+        "active": true,
+        "title" : "Event: {event}",
+        "message" : "Event <b>{event}</b> was detected. This kind of event is not monitored yet. Please check the payload and format an appropriate status message in the configuration for the hook 'all'!"
+    },
+    "delete": {
+        "active": true,
+        "title" : "Event: {event}",
+        "message" : "Object <b>{ref}</b> of type <b>{ref_type}</b> was deleted from repository <a href='{repository/html_url}'><b>{repository/name}</b></a>."
+    },
+    "deployment": {
+        "active": true,
+        "title" : "Event: {event}",
+        "message" : "Event <b>{event}</b> was detected. This kind of event is not monitored yet. Please check the payload and format an appropriate status message in the configuration for the hook 'all'!"
+    },
+    "deploy_key": {
+        "active": true,
+        "title" : "Event: {event}",
+        "message" : "Event <b>{event}</b> was detected. This kind of event is not monitored yet. Please check the payload and format an appropriate status message in the configuration for the hook 'all'!"
+    },
+    "deployment_status": {
+        "active": true,
+        "title" : "Event: {event}",
+        "message" : "Event <b>{event}</b> was detected. This kind of event is not monitored yet. Please check the payload and format an appropriate status message in the configuration for the hook 'all'!"
+    },
+    "download": {
+        "active": true,
+        "title" : "Event: {event}",
+        "message" : "Event <b>{event}</b> was detected. This kind of event is not monitored yet. Please check the payload and format an appropriate status message in the configuration for the hook 'all'!"
+    },
+    "fork_apply": {
+        "active": true,
+        "title" : "Event: {event}",
+        "message" : "Event <b>{event}</b> was detected. This kind of event is not monitored yet. Please check the payload and format an appropriate status message in the configuration for the hook 'all'!"
+    },
+    "gist": {
+        "active": true,
+        "title" : "Event: {event}",
+        "message" : "Event <b>{event}</b> was detected. This kind of event is not monitored yet. Please check the payload and format an appropriate status message in the configuration for the hook 'all'!"
+    },
+    "gollum": {
+        "active": true,
+        "title" : "Event: {event}",
+        "message" : "Event <b>{event}</b> was detected. This kind of event is not monitored yet. Please check the payload and format an appropriate status message in the configuration for the hook 'all'!"
+    },
+    "installation": {
+        "active": true,
+        "title" : "Event: {event}",
+        "message" : "Event <b>{event}</b> was detected. This kind of event is not monitored yet. Please check the payload and format an appropriate status message in the configuration for the hook 'all'!"
+    },
+    "installation_repositories": {
+        "active": true,
+        "title" : "Event: {event}",
+        "message" : "Event <b>{event}</b> was detected. This kind of event is not monitored yet. Please check the payload and format an appropriate status message in the configuration for the hook 'all'!"
+    },
+    "marketplace_purchase": {
+        "active": true,
+        "title" : "Event: {event}",
+        "message" : "Event <b>{event}</b> was detected. This kind of event is not monitored yet. Please check the payload and format an appropriate status message in the configuration for the hook 'all'!"
+    },
+    "meta": {
+        "active": true,
+        "title" : "Event: {event}",
+        "message" : "<b>{hook/type}</b> was <b>{action}</b> by <b><a hrtef='{sender/html_url}'>{sender/login}</a></b>"
+    },
+    "milestone": {
+        "active": true,
+        "title" : "Event: {event}",
+        "message" : "Event <b>{event}</b> was detected. This kind of event is not monitored yet. Please check the payload and format an appropriate status message in the configuration for the hook 'all'!"
+    },
+    "organization": {
+        "active": true,
+        "title" : "Event: {event}",
+        "message" : "Event <b>{event}</b> was detected. This kind of event is not monitored yet. Please check the payload and format an appropriate status message in the configuration for the hook 'all'!"
+    },
+    "enterprise": {
+        "active": true,
+        "title" : "Event: {event}",
+        "message" : "Event <b>{event}</b> was detected. This kind of event is not monitored yet. Please check the payload and format an appropriate status message in the configuration for the hook 'all'!"
+    },
+    "org_block": {
+        "active": true,
+        "title" : "Event: {event}",
+        "message" : "Event <b>{event}</b> was detected. This kind of event is not monitored yet. Please check the payload and format an appropriate status message in the configuration for the hook 'all'!"
+    },
+    "package": {
+        "active": true,
+        "title" : "Event: {event}",
+        "message" : "Event <b>{event}</b> was detected. This kind of event is not monitored yet. Please check the payload and format an appropriate status message in the configuration for the hook 'all'!"
+    },
+    "page_build": {
+        "active": true,
+        "title" : "Event: {event}",
+        "message" : "Event <b>{event}</b> was detected. This kind of event is not monitored yet. Please check the payload and format an appropriate status message in the configuration for the hook 'all'!"
+    },
+    "project_card": {
+        "active": true,
+        "title" : "Event: {event}",
+        "message" : "Event <b>{event}</b> was detected. This kind of event is not monitored yet. Please check the payload and format an appropriate status message in the configuration for the hook 'all'!"
+    },
+    "project_column": {
+        "active": true,
+        "title" : "Event: {event}",
+        "message" : "Event <b>{event}</b> was detected. This kind of event is not monitored yet. Please check the payload and format an appropriate status message in the configuration for the hook 'all'!"
+    },
+    "project": {
+        "active": true,
+        "title" : "Event: {event}",
+        "message" : "Event <b>{event}</b> was detected. This kind of event is not monitored yet. Please check the payload and format an appropriate status message in the configuration for the hook 'all'!"
+    },
+    "public": {
+        "active": true,
+        "title" : "Event: {event}",
+        "message" : "Event <b>{event}</b> was detected. This kind of event is not monitored yet. Please check the payload and format an appropriate status message in the configuration for the hook 'all'!"
+    },
+    "pull_request": {
+        "active": true,
+        "title" : "Event: {event}",
+        "message" : "<b>Pull Request</b> <b>#{pull_request/number}</b> with title '<b><a href='{pull_request/html_url}'>{pull_request/title}</a></b>' was <b>{action}</b> by user <a href='{sender/html_url}'><b>{sender/login}</b></a> in repository <b><a href='{repository/html_url}'>{repository/name}</a></b>. Please review this action as soon as possible."
+    },
+    "pull_request_review": {
+        "active": true,
+        "title" : "Event: {event}",
+        "message" : "Event <b>{event}</b> was detected. This kind of event is not monitored yet. Please check the payload and format an appropriate status message in the configuration for the hook 'all'!"
+    },
+    "pull_request_review_comment": {
+        "active": true,
+        "title" : "Event: {event}",
+        "message" : "Event <b>{event}</b> was detected. This kind of event is not monitored yet. Please check the payload and format an appropriate status message in the configuration for the hook 'all'!"
+    },
+    "release": {
+        "active": true,
+        "title" : "Event: {event}",
+        "message" : "Event <b>{event}</b> was detected. This kind of event is not monitored yet. Please check the payload and format an appropriate status message in the configuration for the hook 'all'!"
+    },
+    "repositpory_dispatch": {
+        "active": true,
+        "title" : "Event: {event}",
+        "message" : "Event <b>{event}</b> was detected. This kind of event is not monitored yet. Please check the payload and format an appropriate status message in the configuration for the hook 'all'!"
+    },
+    "repository_import": {
+        "active": true,
+        "title" : "Event: {event}",
+        "message" : "Event <b>{event}</b> was detected. This kind of event is not monitored yet. Please check the payload and format an appropriate status message in the configuration for the hook 'all'!"
+    },
+    "repository_vulnerability_alert": {
+        "active": true,
+        "title" : "Event: {event}",
+        "message" : "Event <b>{event}</b> was detected. This kind of event is not monitored yet. Please check the payload and format an appropriate status message in the configuration for the hook 'all'!"
+    },
+    "security_advisory": {
+        "active": true,
+        "title" : "Event: {event}",
+        "message" : "Event <b>{event}</b> was detected. This kind of event is not monitored yet. Please check the payload and format an appropriate status message in the configuration for the hook 'all'!"
+    },
+    "sponsorship": {
+        "active": true,
+        "title" : "Event: {event}",
+        "message" : "Event <b>{event}</b> was detected. This kind of event is not monitored yet. Please check the payload and format an appropriate status message in the configuration for the hook 'all'!"
+    },
+    "team_add": {
+        "active": true,
+        "title" : "Event: {event}",
+        "message" : "Event <b>{event}</b> was detected. This kind of event is not monitored yet. Please check the payload and format an appropriate status message in the configuration for the hook 'all'!"
+    },
+    "status": {
+        "active": true,
+        "title" : "Event: {event}",
+        "message" : "Event <b>{event}</b> was detected. This kind of event is not monitored yet. Please check the payload and format an appropriate status message in the configuration for the hook 'all'!"
+    }
+}
