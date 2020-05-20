@@ -1,5 +1,5 @@
 {
-    "debug_level": "DEBUG",
+    "debug_level": "INFO",
     "webhook": {
         "default": "https://...",
         "dev": "https://...",
