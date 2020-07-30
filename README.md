@@ -1,11 +1,20 @@
 
 # Github Webhook Framework
-<a id="markdown-Github%20Webhook%20Framework" name="Github%20Webhook%20Framework"></a>
+<a id="markdown-github-webhook-framework" name="github-webhook-framework"></a>
 
-An extensible and flexible Python code based Github webhook handling framework. This repository provides examples of how to send notifications to Microsoft Teams when specific events occur in a repository or an organization. 
+An extensible and flexible Python code based Github webhook handling framework. This repository provides examples of how to send notifications to Microsoft Teams when specific events occur in a repository or an organization.
+
+## Naming
+<a id="markdown-naming" name="naming"></a>
+
+genvoy ['jenvoi] is a name combination of both 'Generali' and 'generic' as prefix and 'envoy' as suffix. The word structure describes this solution as a generic approach to transmitting webhook messages (as an envoy) for the Generali.
+
+This word construct only serves the purpose of simplified representation and description of the function of the software. It is not related to similar sounding products from other sectors or product areas and related components.  The function of the software is alternatively described by the longer name "github-webhooks-framework".
+
+The name was changed 07/2020 from "github-webhooks-framework" to "genvoy" because the various functions called by a Webhook call are to be managed as separate repositories.A short name for the framework repository makes it easier to name the function repositories.
 
 ## Purpose
-<a id="markdown-Purpose" name="Purpose"></a>
+<a id="markdown-purpose" name="purpose"></a>
 
 We want to keep all repositories in our Github organization in view and be able to react to events at an early stage. To do this, we use Microsoft Teams (or any other comparable tool) to receive and track events within dedicated channels. Since events in Github only remain in the log for 90 days, we decided to use an additional external platform.
 
@@ -17,9 +26,10 @@ Limitation: Currently no events are recorded at the configuration of the organiz
 
 
 ## Table of content
-<a id="markdown-Table%20of%20content" name="Table%20of%20content"></a>
+<a id="markdown-table-of-content" name="table-of-content"></a>
 <!-- TOC -->
 
+- [Naming](#naming)
 - [Purpose](#purpose)
 - [Table of content](#table-of-content)
 - [Requirements](#requirements)
@@ -31,12 +41,19 @@ Limitation: Currently no events are recorded at the configuration of the organiz
     - [Set up dependencies](#set-up-dependencies)
     - [Configuration](#configuration)
     - [Adding hooks](#adding-hooks)
+        - [Hook call/execution](#hook-callexecution)
     - [Hook configuration](#hook-configuration)
+        - [Sample: Notification](#sample-notification)
+        - [Sample: Git Clone at Push](#sample-git-clone-at-push)
+        - [Placeholder handling](#placeholder-handling)
+        - [References](#references)
 - [Deploy](#deploy)
     - [Python](#python)
     - [Apache](#apache)
     - [Docker](#docker)
+        - [Use under Openshift](#use-under-openshift)
     - [Docker @ Synology](#docker--synology)
+        - [Adaptation of the internal port](#adaptation-of-the-internal-port)
 - [Test your deployment](#test-your-deployment)
 - [Debug](#debug)
 - [Notes on infrastructure](#notes-on-infrastructure)
@@ -47,7 +64,7 @@ Limitation: Currently no events are recorded at the configuration of the organiz
 <!-- /TOC -->
 
 ## Requirements
-<a id="markdown-Requirements" name="Requirements"></a>
+<a id="markdown-requirements" name="requirements"></a>
 - Python 3.6+
 - Python Module (see requirements.txt)
 - Docker
@@ -56,7 +73,7 @@ Limitation: Currently no events are recorded at the configuration of the organiz
     - Microsoft Teams Channel
 
 ## Advantages
-<a id="markdown-Advantages" name="Advantages"></a>
+<a id="markdown-advantages" name="advantages"></a>
 - Support for all Github events
 - flexible parsing system for event payloads
 - no code adjustment necessary
@@ -65,7 +82,7 @@ Limitation: Currently no events are recorded at the configuration of the organiz
 - productively applicable
 
 ## Sequence diagram
-<a id="markdown-Sequence%20diagram" name="Sequence%20diagram"></a>
+<a id="markdown-sequence-diagram" name="sequence-diagram"></a>
 ![sequence diagram](docs/images/sequence.png)
 
     graph TD
@@ -80,29 +97,29 @@ Limitation: Currently no events are recorded at the configuration of the organiz
     H -->|...| I[...]
 
 ## Installation
-<a id="markdown-Installation" name="Installation"></a>
+<a id="markdown-installation" name="installation"></a>
 
 ### Setting up the webhook call in Github
-<a id="markdown-Setting%20up%20the%20webhook%20call%20in%20Github" name="Setting%20up%20the%20webhook%20call%20in%20Github"></a>
+<a id="markdown-setting-up-the-webhook-call-in-github" name="setting-up-the-webhook-call-in-github"></a>
 
 In the repository or organization, the target address must be specified in the format `http://<ip>:5000` under the settings under Webooks. The default port in the repo is 5000. As events to send we recommend to send all events to be able to use the script as flexible as possible and not to miss any important events later.
 
 ### Cloning the Github repository
-<a id="markdown-Cloning%20the%20Github%20repository" name="Cloning%20the%20Github%20repository"></a>
+<a id="markdown-cloning-the-github-repository" name="cloning-the-github-repository"></a>
 
-    git clone https://github.com/generaliinformatik/github-webhook-framework.git
+    git clone https://github.com/generaliinformatik/genvoy.git
     cd github-webhook-framework
 
 
 ### Set up dependencies
-<a id="markdown-Set%20up%20dependencies" name="Set%20up%20dependencies"></a>
+<a id="markdown-set-up-dependencies" name="set-up-dependencies"></a>
 
 The dependencies to Python modules can be set up by calling
 
     sudo pip install -r ./app/requirements.txt
 
 ### Configuration
-<a id="markdown-Configuration" name="Configuration"></a>
+<a id="markdown-configuration" name="configuration"></a>
 
 You can configure what the application does by copying the sample config file
 ``config.json.sample`` to ``config.json`` and adapting it to your needs:
@@ -129,7 +146,7 @@ You can configure what the application does by copying the sample config file
 The configuration file is read in anew with every HTTP request before commands are executed. This allows the settings to be adjusted dynamically.
 
 ### Adding hooks
-<a id="markdown-Adding%20hooks" name="Adding%20hooks"></a>
+<a id="markdown-adding-hooks" name="adding-hooks"></a>
 
 This application will execute scripts in the hooks directory using the following order:
 
@@ -189,6 +206,7 @@ The payload structure depends on the event type. Please review:
     https://developer.github.com/v3/activity/events/types/
 
 #### Hook call/execution
+<a id="markdown-hook-call%2Fexecution" name="hook-call%2Fexecution"></a>
 
 The configuration of the hooks depends on the hooks used. The sample hooks contained in the repository are used to send notifications about the github events to Microsoft Teams and to clone repositories locally. 
 
@@ -206,9 +224,10 @@ If the event `push` in branch `master`of repository `repo1` occurs, the scripts 
 are called. Some sample scripts are given to demonstrate the procedure.
 
 ### Hook configuration
-<a id="markdown-Hook%20configuration" name="Hook%20configuration"></a>
+<a id="markdown-hook-configuration" name="hook-configuration"></a>
 
 #### Sample: Notification
+<a id="markdown-sample%3A-notification" name="sample%3A-notification"></a>
 
 The `all` script interprets the parameters passed and reads the configuration file corresponding to the name of the event that has occurred. If a corresponding configuration file exists for the event, it is read and used to send the message. In this example we assume that Microsft Teams is used.
 
@@ -223,6 +242,7 @@ Example: If the event `push` occurs, the script `hooks/all` tries to read the co
 | event/message | The message content for this kind of event. Any placeholder will be replaced (see placeholder handling). | - | - | '' |
 
 #### Sample: Git Clone at Push
+<a id="markdown-sample%3A-git-clone-at-push" name="sample%3A-git-clone-at-push"></a>
 
 The second example illustrates the event and hook `push`. This hook is additionally executed after the `all` hook for all `push` events. 
 
@@ -234,6 +254,7 @@ The main purpose of this script is to clone a repository locally when a push eve
 | clone_dir |  The directory in which the clone is created. In the specified directory, a subdirectory with timestamp is created in which the clone is created. This allows a repository to be saved in any state without overwriting the previous clones. | - |  - | `backup.git` |
 
 #### Placeholder handling
+<a id="markdown-placeholder-handling" name="placeholder-handling"></a>
 
 In the title or message, content from the passed JSON of the event that occurred, can be specified. These are embedded in brackets hierarchically according to the JSON structure. A `{comment/title}` specification thus determines the key `title` from the JSON in the `comment` structure and embeds the content instead of the placeholder. Placeholders that are not resolved are replaced by 'null'. Further levels can be specified accordingly (example: `{1/2/3/4}`).
 
@@ -249,6 +270,7 @@ The following placeholders are special case, because it is not propagated within
 The advantage of the hierarchical path specification method is that the contents of the JSON can be used dynamically without the need to modify a script and the use of variable assignments. For other messages and content, all you need to do is determine the structure and content of the JSON and use the path to the desired content as a placeholder `{...}`. Please see payload structure as mentioned above.
 
 #### References
+<a id="markdown-references" name="references"></a>
 
 References are used to define recurring specifications once and to refer to them in the individual sections of the configuration. The following references are possible:
 
@@ -262,10 +284,10 @@ References are used to define recurring specifications once and to refer to them
 **Note on external references**: The directory in which specified files are searched is based on the ```hooks``` directory. Files with a special suffix can be excluded from being uploaded by Git by using a ```.gitignore```. It is recommended to use a uniform suffix for such files.
 
 ## Deploy
-<a id="markdown-Deploy" name="Deploy"></a>
+<a id="markdown-deploy" name="deploy"></a>
 
 ### Python
-<a id="markdown-Python" name="Python"></a>
+<a id="markdown-python" name="python"></a>
 
 To execute the script from the command line, simply call
 
@@ -273,7 +295,7 @@ To execute the script from the command line, simply call
     python3 main.py
 
 ### Apache
-<a id="markdown-Apache" name="Apache"></a>
+<a id="markdown-apache" name="apache"></a>
 
 To deploy in Apache, just add a ``WSGIScriptAlias`` directive to your
 VirtualHost file:
@@ -300,7 +322,7 @@ To register the webhook select Content type: ``application/json`` and set the UR
     http://my.site.com/webhooks
 
 ### Docker
-<a id="markdown-Docker" name="Docker"></a>
+<a id="markdown-docker" name="docker"></a>
 
 To deploy in a Docker container you have to expose the port 5000, for example with the following command:
 
@@ -318,12 +340,13 @@ You can also mount volume to setup the ``./hooks/``, ``./backup.git/`` or ``./ba
 
 Alternatively, the script file `./deploy_docker.sh` can be called, in which the above mentioned commands are called automatically. Variables in the script file can be used to customize the execution. 
 
-#### Use under Openshift 
+#### Use under Openshift
+<a id="markdown-use-under-openshift" name="use-under-openshift"></a>
 
 The basis Dockerfile can be used under Docker and Openshift. For the use under Openshift the script `./deploy_openshift.sh` can be used.
 
 ### Docker @ Synology
-<a id="markdown-Docker%20%40%20Synology" name="Docker%20%40%20Synology"></a>
+<a id="markdown-docker-%40-synology" name="docker-%40-synology"></a>
 
 To use the solution as a docker container on your Synology we would like to give the following tips for the setup.
     
@@ -358,6 +381,7 @@ Finally, we set up the port mapping under `Port Settings`. This is necessary bec
     At this point, there are several possibilities, depending on the respective network configuration. In this case, we assume that the webhook sends via github on your public IP to port 55000. This port is shared in the router and forwarded to the IP from the Synology Product. Here, the packets on port 55500 are received and forwarded to the container.
 
 #### Adaptation of the (internal) port
+<a id="markdown-adaptation-of-the-internal-port" name="adaptation-of-the-internal-port"></a>
 
 The port to be used internally is currently set to `5000`. It may sometimes be necessary to adjust the port within the container or the user may have his own preferences. However, in most cases it should be sufficient to implement a change of the port propagated to the outside world via the command `docker run -p <port>:<Port> ...`.
 
@@ -372,7 +396,7 @@ Otherwise, the port is configured for the services contained in the docker file 
 Please note that it may be necessary to set port forwarding in routers if the system is not directly accessible.
 
 ## Test your deployment
-<a id="markdown-Test%20your%20deployment" name="Test%20your%20deployment"></a>
+<a id="markdown-test-your-deployment" name="test-your-deployment"></a>
 
 To test your hook you may use the GitHub REST API with ``curl``. See:
 
@@ -389,7 +413,7 @@ If you have no 2FA (two factor athentication) activated, you can fire an event v
 You should be able to see any log error in your webapp. If 2FA is activated, you have to use an token.
 
 ## Debug
-<a id="markdown-Debug" name="Debug"></a>
+<a id="markdown-debug" name="debug"></a>
 
 When running in Apache, the ``stderr`` of the hooks that return non-zero will
 be logged in Apache's error logs. For example:
@@ -406,7 +430,7 @@ You can also launch the Flask web server in debug mode at port ``5000``.
 This can help debug problem with the WSGI application itself.
 
 ## Notes on infrastructure
-<a id="markdown-Notes%20on%20infrastructure" name="Notes%20on%20infrastructure"></a>
+<a id="markdown-notes-on-infrastructure" name="notes-on-infrastructure"></a>
 
 Microsft Teams is typically used as a cloud-based solution. Github is also often used by companies as a cloud solution.
 
@@ -422,7 +446,7 @@ In accordance with the recommendation, communication is carried out as follows:
 
 
 ## Notes on data protection
-<a id="markdown-Notes%20on%20data%20protection" name="Notes%20on%20data%20protection"></a>
+<a id="markdown-notes-on-data-protection" name="notes-on-data-protection"></a>
 
 The underlying information is per se classified as public information by the user due to the intention to publish it on Github. Only the information published by the user can be classified as critical for IT security or privacy reasons.
 
@@ -439,12 +463,12 @@ When using this framework, this publicly visible information is processed by add
 However, we would like to point out that the publication of sensitive information can still become relevant by integrating additional services. For this reason, we recommend under all circumstances that you use the Framework Service on infrastructure that is under your own (preferably complete) control. An appropriate reaction to security-relevant events is recommended in any case - regardless of the number or type of third-party infrastructures used. For example, sensitive information must be removed immediately and your own infrastructures must be secured (e.g. if access data is published).
 
 ## License
-<a id="markdown-License" name="License"></a>
+<a id="markdown-license" name="license"></a>
 
 APLv2, see [LICENSE](LICENSE)
 
 ## Credits
-<a id="markdown-Credits" name="Credits"></a>
+<a id="markdown-credits" name="credits"></a>
 
 This project is a reinterpretation and merge of several approaches and uses the basic approach of Carlos Jenkins:
 
