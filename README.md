@@ -1,6 +1,6 @@
 
-# Github Webhook Framework
-<a id="markdown-github-webhook-framework" name="github-webhook-framework"></a>
+# Genvoy - A Generic Github Webhook Framework
+<a id="markdown-genvoy---a-generic-github-webhook-framework" name="genvoy---a-generic-github-webhook-framework"></a>
 
 An extensible and flexible Python code based Github webhook handling framework. This repository provides examples of how to send notifications to Microsoft Teams when specific events occur in a repository or an organization.
 
@@ -42,11 +42,6 @@ Limitation: Currently no events are recorded at the configuration of the organiz
     - [Configuration](#configuration)
     - [Adding hooks](#adding-hooks)
         - [Hook call/execution](#hook-callexecution)
-    - [Hook configuration](#hook-configuration)
-        - [Sample: Notification](#sample-notification)
-        - [Sample: Git Clone at Push](#sample-git-clone-at-push)
-        - [Placeholder handling](#placeholder-handling)
-        - [References](#references)
 - [Deploy](#deploy)
     - [Python](#python)
     - [Apache](#apache)
@@ -180,22 +175,24 @@ as second argument. For example:
 Hooks can be written in any scripting language as long as the file is
 executable and has a shebang. The file must not contain a file extension. A simple example in Python could be:
 
-    #!/usr/bin/env python3
-    # Python Example for Python GitHub Webhooks
-    # File: push-myrepo-master
+```python
+#!/usr/bin/env python3
+# Python Example for Python GitHub Webhooks
+# File: push-myrepo-master
 
-    import sys
-    import json
+import sys
+import json
 
-    with open(sys.argv[1], 'r') as jsf:
-      payload = json.loads(jsf.read())
+with open(sys.argv[1], 'r') as jsf:
+    payload = json.loads(jsf.read())
 
-    ### Do something with the payload
-    name = payload['repository']['name']
-    outfile = '/tmp/hook-{}.log'.format(name)
+### Do something with the payload
+name = payload['repository']['name']
+outfile = '/tmp/hook-{}.log'.format(name)
 
-    with open(outfile, 'w') as f:
-        f.write(json.dumps(payload))
+with open(outfile, 'w') as f:
+    f.write(json.dumps(payload))
+```
 
 Not all events have an associated branch, so a branch-specific hook cannot
 fire such event scripts. For events that contain a pull_request object, the
@@ -222,66 +219,6 @@ If the event `push` in branch `master`of repository `repo1` occurs, the scripts 
     hooks/all
 
 are called. Some sample scripts are given to demonstrate the procedure.
-
-### Hook configuration
-<a id="markdown-hook-configuration" name="hook-configuration"></a>
-
-#### Sample: Notification
-<a id="markdown-sample%3A-notification" name="sample%3A-notification"></a>
-
-The `all` script interprets the parameters passed and reads the configuration file corresponding to the name of the event that has occurred. If a corresponding configuration file exists for the event, it is read and used to send the message. In this example we assume that Microsft Teams is used.
-
-Example: If the event `push` occurs, the script `hooks/all` tries to read the configuration file `hooks/all.json` and use its contents of section `push` to send the message. If no configuration file is found, no message is sent (because no webhook adress is known). The following settings are possible in the configuration file:
-
-| Key | Value | Placeholder | Optional | Default |
-| --- | --- | :-: | :-: | -- |
-| webhook | The URL of the Microsoft Team Webhook. This URL must be specified for the respective channel with the Webhook Connector previously set up. This option will be overwritten, if `event/webhook` is set within an event configuration. | - | - | '' |
-| event/webhook | The URL of the Microsoft Team Webhook. This URL must be specified for the respective channel with the Webhook Connector previously set up. Internal references can be introduced with "@" and external references with "!" (see section "References").| - | - | '' |
-| event/color | Color code to be used for message,. This color is used as colored seperator line  between webhook name and message title/content.| &#10003; |  &#10003; | '' |
-| event/title | The message title for this kind of event. Any placeholder will be replaced (see placeholder handling). |  &#10003;|  &#10003; | '' |
-| event/message | The message content for this kind of event. Any placeholder will be replaced (see placeholder handling). | - | - | '' |
-
-#### Sample: Git Clone at Push
-<a id="markdown-sample%3A-git-clone-at-push" name="sample%3A-git-clone-at-push"></a>
-
-The second example illustrates the event and hook `push`. This hook is additionally executed after the `all` hook for all `push` events. 
-
-The main purpose of this script is to clone a repository locally when a push event occurs. The following settings are also included in the `push.json` and control the backup of the repository:
-
-| Key | Value | Placeholder | Optional | Default |
-| --- | --- | :-: | :-: | -- |
-| git_url | The URL of the Git Repository to be cloned. This value usually does not need to be adjusted, since it corresponds to the dynamic value of the Git Repository URL.  | &#10003; | - | `{repository/html_url}` |
-| clone_dir |  The directory in which the clone is created. In the specified directory, a subdirectory with timestamp is created in which the clone is created. This allows a repository to be saved in any state without overwriting the previous clones. | - |  - | `backup.git` |
-
-#### Placeholder handling
-<a id="markdown-placeholder-handling" name="placeholder-handling"></a>
-
-In the title or message, content from the passed JSON of the event that occurred, can be specified. These are embedded in brackets hierarchically according to the JSON structure. A `{comment/title}` specification thus determines the key `title` from the JSON in the `comment` structure and embeds the content instead of the placeholder. Placeholders that are not resolved are replaced by 'null'. Further levels can be specified accordingly (example: `{1/2/3/4}`).
-
-The following placeholders are special case, because it is not propagated within the playload itself.
-
-| Placeholder | Content |
-| --- | --- |
-| `{event}`| The placeholder `event` is permanently replaced with the determined event type and can be used in all elements. |
-| `{payload_text}` | The placeholder `payload_text` is replaced with a list of valid placeholders and the corresponding content of the payload. The output is formatted as text. |
-| `{payload_table_html}`| The placeholder `payload_table_html` is replaced with a list of valid placeholders and the corresponding content of the payload. The output is formatted as HTML table. |
-| `{payload_table_md}` | The placeholder `payload_table_md` is replaced with a list of valid placeholders and the corresponding content of the payload. The output is formatted as Markdown table. |
-
-The advantage of the hierarchical path specification method is that the contents of the JSON can be used dynamically without the need to modify a script and the use of variable assignments. For other messages and content, all you need to do is determine the structure and content of the JSON and use the path to the desired content as a placeholder `{...}`. Please see payload structure as mentioned above.
-
-#### References
-<a id="markdown-references" name="references"></a>
-
-References are used to define recurring specifications once and to refer to them in the individual sections of the configuration. The following references are possible:
-
-| Reference type | Example | Description |
-| --- | --- | --- |
-| w/o | | No specification within an event results in the standard definition being used. If the script uses webhooks, {webhook/default} will be used. |
-| directly | dev | The content "dev" is used as reference as specified. Dev can be a webhook, an email or something else depending on the event or executed script. |
-| internal | @ref | This specification allows the reference to an internal definition. If the reference in {push/webhook} is specified with "@dev", {webhook/dev} is searched for the actual specification. If this is not found, the reference is no longer used.|
-| external | !file.ext | This specification allows the use of an external file specification. The content of the file is used as a reference. If the file is not found, no reference is used. |
-
-**Note on external references**: The directory in which specified files are searched is based on the ```hooks``` directory. Files with a special suffix can be excluded from being uploaded by Git by using a ```.gitignore```. It is recommended to use a uniform suffix for such files.
 
 ## Deploy
 <a id="markdown-deploy" name="deploy"></a>

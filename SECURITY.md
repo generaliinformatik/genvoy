@@ -9,7 +9,7 @@ efforts to responsibly disclose your findings, and will make every effort to
 acknowledge your contributions.
 
 To report a security issue, email
-[opensource.de@generali.com](mailto:opensurce.de@generali.com?subject=SECURITY) and include the
+[opensource.de@generali.com](mailto:opensource.de@generali.com?subject=SECURITY) and include the
 word "SECURITY" in the subject line.
 
 The Generali OST will send a response indicating the next steps in handling your
