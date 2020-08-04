@@ -4,6 +4,8 @@
 
 An extensible and flexible Python code based Github webhook handling framework. This repository provides examples of how to send notifications to Microsoft Teams when specific events occur in a repository or an organization.
 
+![genvoy](docs/images/genvoy_logo_socialmedia.png)
+
 ## Naming
 <a id="markdown-naming" name="naming"></a>
 
