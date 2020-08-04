@@ -40,7 +40,7 @@ COPY ./deployment/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 # Fix rights and ownership of start script
 # Access to /dev/stdout
 # https://github.com/moby/moby/issues/31243#issuecomment-406879017
-RUN ln -s /usr/local/bin/docker-entrypoint.sh / && \
+RUN ln -sfn /usr/local/bin/docker-entrypoint.sh / && \
     chmod 777 /usr/local/bin/docker-entrypoint.sh && \
     chgrp -R 0 /usr/local/bin/docker-entrypoint.sh && \
     chown -R nginx:root /usr/local/bin/docker-entrypoint.sh
