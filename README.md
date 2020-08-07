@@ -207,13 +207,13 @@ The payload structure depends on the event type. Please review:
 #### Hook call/execution
 <a id="markdown-hook-call%2Fexecution" name="hook-call%2Fexecution"></a>
 
-The configuration of the hooks depends on the hooks used. The sample hooks contained in the repository are used to send notifications about the github events to Microsoft Teams and to clone repositories locally. 
+The configuration of the hooks depends on the hooks used. The sample hooks contained in the repository are used to send notifications about the github events to Microsoft Teams and to clone repositories locally.
 
 To get notifications about all events, the hook file `all` is used. This script interprets the parameter JSON data (parameter #1) and event name (parameter #2) and complete the notification task.
 
 If the event `push` in branch `master`of repository `repo1` occurs, the scripts (in that order)
 
-    hooks/push-repo1-master 
+    hooks/push-repo1-master
     hooks/push-repo1
     hooks/push
     hooks/all-repo1-master
@@ -266,7 +266,7 @@ To register the webhook select Content type: ``application/json`` and set the UR
 To deploy in a Docker container you have to expose the port 5000, for example with the following command:
 
     docker build --pull -f ./Dockerfile -t webhooks:latest .
-    docker run -p 5000:5000 webhooks:latest  
+    docker run -p 5000:5000 webhooks:latest
 
 You can also mount volume to setup the ``./hooks/``, ``./backup.git/`` or ``./backup.json/`` directories, and the file ``config.json``:
 
@@ -277,7 +277,7 @@ You can also mount volume to setup the ``./hooks/``, ``./backup.git/`` or ``./ba
       -v /path/to/my/config.json:/app/config.json \
       -p 5000:5000 webhooks:latest
 
-Alternatively, the script file `./deploy_docker.sh` can be called, in which the above mentioned commands are called automatically. Variables in the script file can be used to customize the execution. 
+Alternatively, the script file `./deploy_docker.sh` can be called, in which the above mentioned commands are called automatically. Variables in the script file can be used to customize the execution.
 
 #### Use under Openshift
 <a id="markdown-use-under-openshift" name="use-under-openshift"></a>
@@ -288,7 +288,7 @@ The basis Dockerfile can be used under Docker and Openshift. For the use under O
 <a id="markdown-docker-%40-synology" name="docker-%40-synology"></a>
 
 To use the solution as a docker container on your Synology we would like to give the following tips for the setup.
-    
+
     The screenshots are the German interface, but we will describe the options in detail.
 
 Once the image has been integrated into Docker for Synology, it can be used to create a container. First, the 'Container Name' (1) must be unique.
@@ -302,9 +302,9 @@ On the `Volume` page, volumes can be mounted to the container. In this example, 
 | _<1>_/backup.git| _<2>_/backup.git | directory | repository clones |
 | _<1>_/backup.json| _<2>_/backup.json | directory | backup copies of github JSONs |
 | _<1>_/hooks | _<2>_/hooks/ | directory | hook scripts |
-| _<1>_/config.json | _<2>_/config.json | file | configuration file main script | 
-_Legende:_  
-_<1> = /volume1/docker.apps/github-webhooks-framework_  
+| _<1>_/config.json | _<2>_/config.json | file | configuration file main script |
+_Legende:_
+_<1> = /volume1/docker.apps/github-webhooks-framework_
 _<2> = /opt/repo/app_
 
 ![synology2](docs/images/synology2.png)
@@ -377,7 +377,7 @@ In a later deployment scenario of the Webhooks framework, it should be considere
 
 Since webhooks are typically sent to an address by push, this would mean, when used in corporate infrastructures, that a system in an internal infrastructure or a DMZ would have to be provided for the mere passing of a message. It is therefore advisable to consider whether the solution could not also be used in a cloud-based infrastructure.
 
-Services that are based on on-premise infrastructures can - if the service allows it - be used by pull method, which means that internal systems establish a connection to the framework and thus no firewall port has to be explicitly opened for communication. 
+Services that are based on on-premise infrastructures can - if the service allows it - be used by pull method, which means that internal systems establish a connection to the framework and thus no firewall port has to be explicitly opened for communication.
 
 In accordance with the recommendation, communication is carried out as follows:
 
